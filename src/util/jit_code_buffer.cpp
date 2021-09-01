@@ -289,6 +289,8 @@ void JitCodeBuffer::FlushInstructionCache(void* address, u32 size)
 }
 
 #if defined(__APPLE__) && defined(__aarch64__)
+extern int _pthread_jit_write_protect_supported_np(void);
+extern void _pthread_jit_write_protect_np(int enabled);
 
 void JitCodeBuffer::WriteProtect(bool enabled)
 {
@@ -298,7 +300,7 @@ void JitCodeBuffer::WriteProtect(bool enabled)
   if (!initialized)
   {
     initialized = true;
-    needs_write_protect = (pthread_jit_write_protect_supported_np() != 0);
+    needs_write_protect = (_pthread_jit_write_protect_supported_np() != 0);
     if (needs_write_protect)
       Log_InfoPrint("pthread_jit_write_protect_np() will be used before writing to JIT space.");
   }
@@ -306,7 +308,7 @@ void JitCodeBuffer::WriteProtect(bool enabled)
   if (!needs_write_protect)
     return;
 
-  pthread_jit_write_protect_np(enabled ? 1 : 0);
+  _pthread_jit_write_protect_np(enabled ? 1 : 0);
 }
 
 #endif

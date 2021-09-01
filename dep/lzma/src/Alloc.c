@@ -10,7 +10,7 @@
 #endif
 #include <stdlib.h>
 
-#include "Alloc.h"
+#include <Alloc.h>
 
 /* #define _SZ_ALLOC_DEBUG */
 
