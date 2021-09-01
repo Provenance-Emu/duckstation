@@ -24,8 +24,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "../globals-vixl.h"
-#include "../utils-vixl.h"
+#include "globals-vixl.h"
+#include "utils-vixl.h"
 
 #include "decoder-aarch64.h"
 
