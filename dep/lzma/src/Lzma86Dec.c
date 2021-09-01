@@ -5,7 +5,7 @@
 
 #include "Lzma86.h"
 
-#include "Alloc.h"
+#include <Alloc.h>
 #include "Bra.h"
 #include "LzmaDec.h"
 
