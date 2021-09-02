@@ -21,6 +21,12 @@ Log_SetChannel(JitCodeBuffer);
 #include <pthread.h>
 #endif
 
+#if defined(__APPLE__)
+#include <libkern/OSCacheControl.h>
+//void sys_icache_invalidate(void *start, size_t len);
+#endif
+
+
 JitCodeBuffer::JitCodeBuffer() = default;
 
 JitCodeBuffer::JitCodeBuffer(u32 size, u32 far_code_size)
@@ -270,6 +276,9 @@ void JitCodeBuffer::FlushInstructionCache(void* address, u32 size)
 {
 #if defined(_WIN32)
   ::FlushInstructionCache(GetCurrentProcess(), address, size);
+#elif defined(__APPLE__)
+    // On Darwin, sys_icache_invalidate() provides this functionality
+  sys_icache_invalidate(address, size);
 #elif defined(__GNUC__) || defined(__clang__)
   __builtin___clear_cache(reinterpret_cast<char*>(address), reinterpret_cast<char*>(address) + size);
 #else
@@ -278,26 +287,26 @@ void JitCodeBuffer::FlushInstructionCache(void* address, u32 size)
 }
 
 #if defined(__APPLE__) && defined(__aarch64__)
-extern int _pthread_jit_write_protect_supported_np(void);
-extern void _pthread_jit_write_protect_np(int enabled);
+//extern int _pthread_jit_write_protect_supported_np(void);
+//extern void _pthread_jit_write_protect_np(int enabled);
 
 void JitCodeBuffer::WriteProtect(bool enabled)
 {
-  static bool initialized = false;
-  static bool needs_write_protect = false;
-
-  if (!initialized)
-  {
-    initialized = true;
-    needs_write_protect = (_pthread_jit_write_protect_supported_np() != 0);
-    if (needs_write_protect)
-      Log_InfoPrint("pthread_jit_write_protect_np() will be used before writing to JIT space.");
-  }
-
-  if (!needs_write_protect)
-    return;
-
-  _pthread_jit_write_protect_np(enabled ? 1 : 0);
+//  static bool initialized = false;
+//  static bool needs_write_protect = false;
+//
+//  if (!initialized)
+//  {
+//    initialized = true;
+//    needs_write_protect = (_pthread_jit_write_protect_supported_np() != 0);
+//    if (needs_write_protect)
+//      Log_InfoPrint("pthread_jit_write_protect_np() will be used before writing to JIT space.");
+//  }
+//
+//  if (!needs_write_protect)
+//    return;
+//
+//  _pthread_jit_write_protect_np(enabled ? 1 : 0);
 }
 
 #endif
