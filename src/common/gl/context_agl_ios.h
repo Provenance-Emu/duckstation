@@ -57,7 +57,7 @@ private:
   bool UpdateDimensions();
 
     EAGLContext* m_context = nullptr;
-    EAGLRenderingAPI m_pixel_format = kEAGLRenderingAPIOpenGLES2;
+    EAGLRenderingAPI m_pixel_format = kEAGLRenderingAPIOpenGLES3;
   void* m_opengl_module_handle = nullptr;
 };
 
