@@ -1,8 +1,13 @@
 #include "context_agl_ios.h"
 #include "../assert.h"
 #include "../log.h"
+
+#if TARGET_OS_MACCATALYST
+#import <OpenGL/OpenGL.h>
+#else
 #include <OpenGLES/EAGL.h>
 #include "glad.h"
+#endif
 #include <dlfcn.h>
 
 Log_SetChannel(GL::ContextAGL);
@@ -121,17 +126,20 @@ bool ContextAGL::SwapBuffers()
   return true;
 }
 
-bool ContextAGL::MakeCurrent()
-{
-//  [m_context makeCurrentContext];
+bool ContextAGL::MakeCurrent() {
+#if TARGET_OS_MACCATALYST
+  [m_context makeCurrentContext];
+#endif
   return true;
 }
 
-bool ContextAGL::DoneCurrent()
-{
+bool ContextAGL::DoneCurrent() {
+#if TARGET_OS_MACCATALYST
+    [NSOpenGLContext clearCurrentContext];
+#else
     [EAGLContext setCurrentContext:nil];
-//  [NSOpenGLContext clearCurrentContext];
-  return true;
+#endif
+    return true;
 }
 
 bool ContextAGL::SetSwapInterval(s32 interval)
