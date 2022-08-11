@@ -10,7 +10,7 @@
 #include "timing_event.h"
 Log_SetChannel(CPU::CodeCache);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 #include "cpu_recompiler_code_generator.h"
 #endif
 
@@ -23,7 +23,7 @@ static constexpr u32 RECOMPILE_FRAMES_TO_FALL_BACK_TO_INTERPRETER = 100;
 static constexpr u32 RECOMPILE_COUNT_TO_FALL_BACK_TO_INTERPRETER = 20;
 static constexpr u32 INVALIDATE_THRESHOLD_TO_DISABLE_LINKING = 10;
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
 // Currently remapping the code buffer doesn't work in macOS or Haiku.
 #if !defined(__HAIKU__) && !defined(__APPLE__) && !defined(_UWP)
@@ -217,7 +217,7 @@ static void ClearState();
 static BlockMap s_blocks;
 static std::array<std::vector<CodeBlock*>, Bus::RAM_8MB_CODE_PAGE_COUNT> m_ram_block_map;
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 static HostCodeMap s_host_code_map;
 
 static void AddBlockToHostCodeMap(CodeBlock* block);
@@ -231,13 +231,13 @@ static Common::PageFaultHandler::HandlerResult LUTPageFaultHandler(void* excepti
 static Common::PageFaultHandler::HandlerResult MMapPageFaultHandler(void* exception_pc, void* fault_address,
                                                                     bool is_write);
 #endif
-#endif // WITH_RECOMPILER
+#endif // WITH_RECOMPILERDAFAQ
 
 void Initialize()
 {
   Assert(s_blocks.empty());
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (g_settings.IsUsingRecompiler())
   {
 #ifdef USE_STATIC_CODE_BUFFER
@@ -272,7 +272,7 @@ void ClearState()
     delete it.second;
 
   s_blocks.clear();
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   s_host_code_map.clear();
   s_code_buffer.Reset();
   ResetFastMap();
@@ -282,7 +282,7 @@ void ClearState()
 void Shutdown()
 {
   ClearState();
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   ShutdownFastmem();
   FreeFastMap();
   s_code_buffer.Destroy();
@@ -404,7 +404,7 @@ void Execute()
   }
 }
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
 void CompileDispatcher()
 {
@@ -469,7 +469,7 @@ void Reinitialize()
 {
   ClearState();
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
   ShutdownFastmem();
   s_code_buffer.Destroy();
@@ -500,7 +500,7 @@ void Reinitialize()
 void Flush()
 {
   ClearState();
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (g_settings.IsUsingRecompiler())
     CompileDispatcher();
 #endif
@@ -562,7 +562,7 @@ CodeBlock* LookupBlock(CodeBlockKey key)
     // add it to the page map if it's in ram
     AddBlockToPageMap(block);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
     SetFastMap(block->GetPC(), block->host_code);
     AddBlockToHostCodeMap(block);
 #endif
@@ -595,7 +595,7 @@ bool RevalidateBlock(CodeBlock* block)
   // re-add it to the page map since it's still up-to-date
   block->invalidated = false;
   AddBlockToPageMap(block);
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   SetFastMap(block->GetPC(), block->host_code);
 #endif
   return true;
@@ -606,7 +606,7 @@ recompile:
   // and we don't want to nuke the block we're compiling...
   RemoveReferencesToBlock(block);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   RemoveBlockFromHostCodeMap(block);
 #endif
 
@@ -643,7 +643,7 @@ recompile:
 
   AddBlockToPageMap(block);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   // re-add to page map again
   SetFastMap(block->GetPC(), block->host_code);
   AddBlockToHostCodeMap(block);
@@ -768,7 +768,7 @@ bool CompileBlock(CodeBlock* block)
     return false;
   }
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (g_settings.IsUsingRecompiler())
   {
     // Ensure we're not going to run out of space while compiling this block.
@@ -797,7 +797,7 @@ bool CompileBlock(CodeBlock* block)
   return true;
 }
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
 void FastCompileBlockFunction()
 {
@@ -871,7 +871,7 @@ static void InvalidateBlock(CodeBlock* block, bool allow_frame_invalidation)
 
   UnlinkBlock(block);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   SetFastMap(block->GetPC(), FastCompileBlockFunction);
 #endif
 }
@@ -907,7 +907,7 @@ void RemoveReferencesToBlock(CodeBlock* block)
   BlockMap::iterator iter = s_blocks.find(block->key.GetPC());
   Assert(iter != s_blocks.end() && iter->second == block);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   SetFastMap(block->GetPC(), FastCompileBlockFunction);
 #endif
 
@@ -916,7 +916,7 @@ void RemoveReferencesToBlock(CodeBlock* block)
     RemoveBlockFromPageMap(block);
 
   UnlinkBlock(block);
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (!block->invalidated)
     RemoveBlockFromHostCodeMap(block);
 #endif
@@ -968,7 +968,7 @@ void LinkBlock(CodeBlock* from, CodeBlock* to, void* host_pc, void* host_resolve
   li.block = from;
   to->link_predecessors.push_back(li);
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   // apply in code
   if (host_pc)
   {
@@ -985,7 +985,7 @@ void UnlinkBlock(CodeBlock* block)
   if (block->link_predecessors.empty() && block->link_successors.empty())
     return;
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (g_settings.IsUsingRecompiler() && g_settings.cpu_recompiler_block_linking)
     s_code_buffer.WriteProtect(false);
 #endif
@@ -996,7 +996,7 @@ void UnlinkBlock(CodeBlock* block)
                              [block](const CodeBlock::LinkInfo& li) { return li.block == block; });
     Assert(iter != li.block->link_successors.end());
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
     // Restore blocks linked to this block back to the resolver
     if (li.host_pc)
     {
@@ -1015,7 +1015,7 @@ void UnlinkBlock(CodeBlock* block)
                              [block](const CodeBlock::LinkInfo& li) { return li.block == block; });
     Assert(iter != li.block->link_predecessors.end());
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
     // Restore blocks we're linking to back to the resolver, since the successor won't be linked to us to backpatch if
     // it changes.
     if (li.host_pc)
@@ -1030,13 +1030,13 @@ void UnlinkBlock(CodeBlock* block)
   }
   block->link_successors.clear();
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   if (g_settings.IsUsingRecompiler() && g_settings.cpu_recompiler_block_linking)
     s_code_buffer.WriteProtect(true);
 #endif
 }
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
 void AddBlockToHostCodeMap(CodeBlock* block)
 {
@@ -1209,11 +1209,11 @@ Common::PageFaultHandler::HandlerResult LUTPageFaultHandler(void* exception_pc, 
   return Common::PageFaultHandler::HandlerResult::ExecuteNextHandler;
 }
 
-#endif // WITH_RECOMPILER
+#endif // WITH_RECOMPILERDAFAQ
 
 } // namespace CPU::CodeCache
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 
 void CPU::Recompiler::Thunks::ResolveBranch(CodeBlock* block, void* host_pc, void* host_resolve_pc, u32 host_pc_size)
 {
@@ -1247,4 +1247,4 @@ void CPU::Recompiler::Thunks::LogPC(u32 pc)
 #endif
 }
 
-#endif // WITH_RECOMPILER
+#endif // WITH_RECOMPILERDAFAQ

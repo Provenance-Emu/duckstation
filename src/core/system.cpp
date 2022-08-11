@@ -1995,7 +1995,7 @@ void System::DoRunFrame()
     switch (g_settings.cpu_execution_mode)
     {
       case CPUExecutionMode::Recompiler:
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
         CPU::CodeCache::ExecuteRecompiler();
 #else
         CPU::CodeCache::Execute();

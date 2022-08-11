@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 #include "cpu_recompiler_types.h"
 #endif
 
@@ -81,7 +81,7 @@ struct CodeBlock
   TickCount uncached_fetch_ticks = 0;
   u32 icache_line_count = 0;
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   std::vector<Recompiler::LoadStoreBackpatchInfo> loadstore_backpatch_info;
 #endif
 
@@ -120,7 +120,7 @@ void Initialize();
 void Shutdown();
 void Execute();
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
 using DispatcherFunction = void (*)();
 using SingleBlockDispatcherFunction = void (*)(const CodeBlock::HostCodePointer);
 

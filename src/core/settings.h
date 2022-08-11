@@ -376,7 +376,7 @@ struct Settings
   static constexpr ConsoleRegion DEFAULT_CONSOLE_REGION = ConsoleRegion::Auto;
   static constexpr float DEFAULT_GPU_PGXP_DEPTH_THRESHOLD = 300.0f;
 
-#ifdef WITH_RECOMPILER
+#ifdef WITH_RECOMPILERDAFAQ
   static constexpr CPUExecutionMode DEFAULT_CPU_EXECUTION_MODE = CPUExecutionMode::Recompiler;
 #ifdef WITH_MMAP_FASTMEM
   static constexpr CPUFastmemMode DEFAULT_CPU_FASTMEM_MODE = CPUFastmemMode::MMap;
