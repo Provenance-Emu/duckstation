@@ -1,8 +1,10 @@
 #include "context_agl_ios.h"
 #include "../assert.h"
 #include "../log.h"
+#include <OpenGLES/EAGL.h>
 #include "glad.h"
 #include <dlfcn.h>
+
 Log_SetChannel(GL::ContextAGL);
 
 namespace GL {
@@ -18,11 +20,11 @@ ContextAGL::~ContextAGL()
   if ([EAGLContext currentContext] == m_context)
     [EAGLContext setCurrentContext:nil];
 
-  if (m_context)
-    [m_context release];
-
-  if (m_pixel_format)
-    [m_pixel_format release];
+//  if (m_context)
+//    [m_context release];
+//
+//  if (m_pixel_format)
+//    [m_pixel_format release];
 
   if (m_opengl_module_handle)
     dlclose(m_opengl_module_handle);
@@ -101,7 +103,8 @@ bool ContextAGL::UpdateDimensions()
   m_wi.surface_height = new_height;
 
   dispatch_block_t block = ^{
-    [m_context update];
+//      [m_context presentRenderbuffer:0]; // testme: JM
+//    [m_context update];
   };
 
   if ([NSThread isMainThread])
@@ -114,13 +117,13 @@ bool ContextAGL::UpdateDimensions()
 
 bool ContextAGL::SwapBuffers()
 {
-  [m_context flushBuffer];
+//  [m_context flushBuffer];
   return true;
 }
 
 bool ContextAGL::MakeCurrent()
 {
-  [m_context makeCurrentContext];
+//  [m_context makeCurrentContext];
   return true;
 }
 
@@ -143,13 +146,13 @@ std::unique_ptr<Context> ContextAGL::CreateSharedContext(const WindowInfo& wi)
 {
   std::unique_ptr<ContextAGL> context = std::make_unique<ContextAGL>(wi);
 
-  context->m_context = [[EAGLContext alloc] initWithAPI:m_pixel_format shareContext:m_context];
+    context->m_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]; //[[EAGLContext alloc] initWithAPI:m_pixel_format shareContext:m_context];
   if (context->m_context == nil)
     return nullptr;
 
   context->m_version = m_version;
   context->m_pixel_format = m_pixel_format;
-  [context->m_pixel_format retain];
+//  [context->m_pixel_format retain];
 
   if (wi.type == WindowInfo::Type::MacOS)
     context->BindContextToView();
@@ -161,12 +164,12 @@ bool ContextAGL::CreateContext(EAGLContext* share_context, int profile, bool mak
 {
   if (m_context)
   {
-    [m_context release];
+//    [m_context release];
     m_context = nullptr;
   }
 
-  if (m_pixel_format)
-    [m_pixel_format release];
+//  if (m_pixel_format)
+//    [m_pixel_format release];
 
 //  const std::array<NSOpenGLPixelFormatAttribute, 5> attribs = {{
 //      NSOpenGLPFADoubleBuffer,
@@ -189,8 +192,8 @@ bool ContextAGL::CreateContext(EAGLContext* share_context, int profile, bool mak
   if (m_wi.type == WindowInfo::Type::MacOS)
     BindContextToView();
 
-  if (make_current)
-    [m_context makeCurrentContext];
+//  if (make_current)
+//    [m_context makeCurrentContext];
 
   return true;
 }
@@ -199,14 +202,14 @@ void ContextAGL::BindContextToView()
 {
   UIView* const view = GetView();
   UIWindow* const window = [view window];
-  [view setWantsBestResolutionOpenGLSurface:YES];
+//  [view setWantsBestResolutionOpenGLSurface:YES];
 
   UpdateDimensions();
 
   dispatch_block_t block = ^{
-    [window makeFirstResponder:view];
-    [m_context setView:view];
-    [window makeKeyAndOrderFront:nil];
+//    [window makeFirstResponder:view];
+//    [m_context setView:view];
+//    [window makeKeyAndOrderFront:nil];
   };
 
   if ([NSThread isMainThread])
