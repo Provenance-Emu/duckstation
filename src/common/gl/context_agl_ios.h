@@ -22,7 +22,7 @@
 //#import <OpenGLES/ES3/gl.h>
 //#import <OpenGLES/ES3/glext.h>
 //
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 //#import <PVSupport/OERingBuffer.h>
 //#import <PVSupport/PVSupport-Swift.h>
 

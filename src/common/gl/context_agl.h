@@ -4,7 +4,7 @@
 
 #if defined(__APPLE__) && defined(__OBJC__)
 //#import <AppKit/AppKit.h>
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #else
 struct NSOpenGLContext;
 struct NSOpenGLPixelFormat;
