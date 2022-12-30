@@ -12,12 +12,12 @@
 #include <mach/mach_time.h>
 #include <pthread.h>
 #include <stdlib.h>
-#if !TARGET_OS_IPHONE
+//#if !TARGET_OS_IPHONE
 #include <AvailabilityMacros.h>
-#include <CoreAudio/AudioHardware.h>
-#include <CoreAudio/HostTime.h>
+//#include <CoreAudio/AudioHardware.h>
+//#include <CoreAudio/HostTime.h>
 #include <CoreFoundation/CoreFoundation.h>
-#endif
+//#endif
 #include "cubeb-internal.h"
 #include "cubeb/cubeb.h"
 #include "cubeb_mixer.h"
@@ -70,6 +70,7 @@ const char * PRIVATE_AGGREGATE_DEVICE_NAME = "CubebAggregateDevice";
  * frames. */
 const uint32_t SAFE_MIN_LATENCY_FRAMES = 128;
 const uint32_t SAFE_MAX_LATENCY_FRAMES = 512;
+#if !TARGET_OS_IPHONE
 
 const AudioObjectPropertyAddress DEFAULT_INPUT_DEVICE_PROPERTY_ADDRESS = {
     kAudioHardwarePropertyDefaultInputDevice, kAudioObjectPropertyScopeGlobal,
@@ -90,10 +91,10 @@ const AudioObjectPropertyAddress DEVICES_PROPERTY_ADDRESS = {
 const AudioObjectPropertyAddress INPUT_DATA_SOURCE_PROPERTY_ADDRESS = {
     kAudioDevicePropertyDataSource, kAudioDevicePropertyScopeInput,
     kAudioObjectPropertyElementMaster};
-
 const AudioObjectPropertyAddress OUTPUT_DATA_SOURCE_PROPERTY_ADDRESS = {
     kAudioDevicePropertyDataSource, kAudioDevicePropertyScopeOutput,
     kAudioObjectPropertyElementMaster};
+#endif
 
 typedef uint32_t device_flags_value;
 
