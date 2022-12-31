@@ -151,20 +151,20 @@ endif()
 
 if(${CPU_ARCH} STREQUAL "x64")
   target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../dep/xbyak/xbyak")
-  target_compile_definitions(core PUBLIC "WITH_RECOMPILERDAFAQ=1" "WITH_MMAP_FASTMEM=1")
+  target_compile_definitions(core PUBLIC "WITH_RECOMPILER=1" "WITH_MMAP_FASTMEM=1")
   target_sources(core PRIVATE ${RECOMPILER_SRCS}
     cpu_recompiler_code_generator_x64.cpp
   )
   message("Building x64 recompiler")
 elseif(${CPU_ARCH} STREQUAL "aarch32")
-  target_compile_definitions(core PUBLIC "WITH_RECOMPILERDAFAQ=1")
+  target_compile_definitions(core PUBLIC "WITH_RECOMPILER=1")
   target_sources(core PRIVATE ${RECOMPILER_SRCS}
     cpu_recompiler_code_generator_aarch32.cpp
   )
   target_link_libraries(core PUBLIC vixl)
   message("Building AArch32 recompiler")
 elseif(${CPU_ARCH} STREQUAL "aarch64")
-  target_compile_definitions(core PUBLIC "WITH_RECOMPILERDAFAQ =1")
+  target_compile_definitions(core PUBLIC "WITH_RECOMPILER =1")
   if (NOT APPLE)
     # Disabled until we support 16K pages.
     target_compile_definitions(core PUBLIC "WITH_MMAP_FASTMEM=1")
