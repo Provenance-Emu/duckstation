@@ -15,7 +15,8 @@
 //#if !TARGET_OS_IPHONE
 #include <AvailabilityMacros.h>
 //#include <CoreAudio/AudioHardware.h>
-//#include <CoreAudio/HostTime.h>
+#include <CoreAudio/CoreAudioTypes.h>
+#include <CoreAudioTypes/CoreAudioTypes.h>
 #include <CoreFoundation/CoreFoundation.h>
 //#endif
 #include "cubeb-internal.h"
@@ -115,13 +116,14 @@ static void
 audiounit_close_stream(cubeb_stream * stm);
 static int
 audiounit_setup_stream(cubeb_stream * stm);
+
+#if !TARGET_OS_IPHONE
 static vector<AudioObjectID>
 audiounit_get_devices_of_type(cubeb_device_type devtype);
 static UInt32
 audiounit_get_device_presentation_latency(AudioObjectID devid,
                                           AudioObjectPropertyScope scope);
 
-#if !TARGET_OS_IPHONE
 static AudioObjectID
 audiounit_get_default_device_id(cubeb_device_type type);
 static int
@@ -146,8 +148,10 @@ struct cubeb {
       nullptr;
   void * output_collection_changed_user_ptr = nullptr;
   // Store list of devices to detect changes
+#if !TARGET_OS_IPHONE
   vector<AudioObjectID> input_device_array;
   vector<AudioObjectID> output_device_array;
+#endif
   // The queue should be released when it’s no longer needed.
   dispatch_queue_t serial_queue =
       dispatch_queue_create(DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
@@ -182,6 +186,7 @@ to_string(io_side side)
   }
 }
 
+#if !TARGET_OS_IPHONE
 struct device_info {
   AudioDeviceID id = kAudioObjectUnknown;
   device_flags_value flags = DEV_UNKNOWN;
@@ -200,6 +205,7 @@ struct property_listener {
   {
   }
 };
+#endif
 
 struct cubeb_stream {
   explicit cubeb_stream(cubeb * context);
@@ -220,8 +226,10 @@ struct cubeb_stream {
   cubeb_stream_params output_stream_params = {CUBEB_SAMPLE_FLOAT32NE, 0, 0,
                                               CUBEB_LAYOUT_UNDEFINED,
                                               CUBEB_STREAM_PREF_NONE};
+#if !TARGET_OS_IPHONE
   device_info input_device;
   device_info output_device;
+#endif
   /* Format descriptions */
   AudioStreamBasicDescription input_desc;
   AudioStreamBasicDescription output_desc;
@@ -258,10 +266,12 @@ struct cubeb_stream {
   /* This is true if a device change callback is currently running.  */
   atomic<bool> switching_device{false};
   atomic<bool> buffer_size_change_state{false};
+#if !TARGET_OS_IPHONE
   AudioDeviceID aggregate_device_id =
       kAudioObjectUnknown; // the aggregate device id
   AudioObjectID plugin_id =
       kAudioObjectUnknown; // used to create aggregate device
+#endif
   /* Mixer interface */
   unique_ptr<cubeb_mixer, decltype(&cubeb_mixer_destroy)> mixer;
   /* Buffer where remixing/resampling will occur when upmixing is required */
@@ -269,11 +279,13 @@ struct cubeb_stream {
   unique_ptr<uint8_t[]> temp_buffer;
   size_t temp_buffer_size = 0; // size in bytes.
   /* Listeners indicating what system events are monitored. */
+#if !TARGET_OS_IPHONE
   unique_ptr<property_listener> default_input_listener;
   unique_ptr<property_listener> default_output_listener;
   unique_ptr<property_listener> input_alive_listener;
   unique_ptr<property_listener> input_source_listener;
   unique_ptr<property_listener> output_source_listener;
+#endif
 };
 
 bool
@@ -464,12 +476,14 @@ audiounit_render_input(cubeb_stream * stm, AudioUnitRenderActionFlags * flags,
     if (r != kAudioUnitErr_CannotDoInCurrentContext) {
       return r;
     }
+#if !TARGET_OS_IPHONE
     if (stm->output_unit) {
       // kAudioUnitErr_CannotDoInCurrentContext is returned when using a BT
       // headset and the profile is changed from A2DP to HFP/HSP. The previous
       // output device is no longer valid and must be reset.
       audiounit_reinit_stream_async(stm, DEV_INPUT | DEV_OUTPUT);
     }
+#endif
     // For now state that no error occurred and feed silence, stream will be
     // resumed once reinit has completed.
     ALOGV("(%p) input: reinit pending feeding silence instead", stm);

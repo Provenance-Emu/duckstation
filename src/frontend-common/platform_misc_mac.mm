@@ -4,16 +4,23 @@
 #include "platform_misc.h"
 #include "common/log.h"
 #include "common/string.h"
+
+#import <TargetConditionals.h>
+#if TARGET_OS_OSX
 #include <IOKit/pwr_mgt/IOPMLib.h>
+#import <AppKit/AppKit.h>
+static IOPMAssertionID s_prevent_idle_assertion = kIOPMNullAssertionID;
+#else
+#import <UIKit/UIKit.h>
+#endif
 #include <cinttypes>
 Log_SetChannel(FrontendCommon);
 
-#import <AppKit/AppKit.h>
 
-static IOPMAssertionID s_prevent_idle_assertion = kIOPMNullAssertionID;
 
 static bool SetScreensaverInhibitMacOS(bool inhibit)
 {
+#if TARGET_OS_OSX
   if (inhibit)
   {
     const CFStringRef reason = CFSTR("System Running");
@@ -32,6 +39,7 @@ static bool SetScreensaverInhibitMacOS(bool inhibit)
     s_prevent_idle_assertion = kIOPMNullAssertionID;
     return true;
   }
+#endif
 }
 
 static bool s_screensaver_suspended;
@@ -62,10 +70,14 @@ void FrontendCommon::ResumeScreensaver()
 
 bool FrontendCommon::PlaySoundAsync(const char* path)
 {
+#if TARGET_OS_OSX
   NSString* nspath = [[NSString alloc] initWithUTF8String:path];
   NSSound* sound = [[NSSound alloc] initWithContentsOfFile:nspath byReference:YES];
   const bool result = [sound play];
   [sound release];
   [nspath release];
   return result;
+#else
+    return false;
+#endif
 }
