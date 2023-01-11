@@ -99,15 +99,15 @@ if(WIN32)
   target_link_libraries(common PRIVATE d3dcompiler.lib)
 endif()
 
-if(NOT WIN32 AND NOT ANDROID)
-  target_sources(common PRIVATE
-    http_downloader_curl.cpp
-    http_downloader_curl.h
-  )
-  target_link_libraries(common PRIVATE
-    CURL::libcurl
-  )
-endif()
+# if(NOT WIN32 AND NOT ANDROID)
+#   target_sources(common PRIVATE
+#     http_downloader_curl.cpp
+#     http_downloader_curl.h
+#   )
+#   target_link_libraries(common PRIVATE
+#     CURL::libcurl
+#   )
+# endif()
 
 if(ANDROID)
   target_link_libraries(common PRIVATE log)

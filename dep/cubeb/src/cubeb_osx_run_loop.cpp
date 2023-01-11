@@ -8,8 +8,10 @@
 #include "cubeb_osx_run_loop.h"
 #include "cubeb_log.h"
 #include <AudioUnit/AudioUnit.h>
+#if TARGET_OS_OSX
 #include <CoreAudio/AudioHardware.h>
 #include <CoreAudio/HostTime.h>
+#endif
 #include <CoreFoundation/CoreFoundation.h>
 #include <cubeb/cubeb.h>
 
@@ -19,6 +21,7 @@ cubeb_set_coreaudio_notification_runloop()
   /* This is needed so that AudioUnit listeners get called on this thread, and
    * not the main thread. If we don't do that, they are not called, or a crash
    * occur, depending on the OSX version. */
+#if TARGET_OS_OSX
   AudioObjectPropertyAddress runloop_address = {
       kAudioHardwarePropertyRunLoop, kAudioObjectPropertyScopeGlobal,
       kAudioObjectPropertyElementMaster};
@@ -31,4 +34,5 @@ cubeb_set_coreaudio_notification_runloop()
   if (r != noErr) {
     LOG("Could not make global CoreAudio notifications use their own thread.");
   }
+#endif
 }
