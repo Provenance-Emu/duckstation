@@ -15,7 +15,7 @@ Log_SetChannel(GL::Context);
 #if defined(_WIN32) && !defined(_M_ARM64)
 #include "context_wgl.h"
 #elif defined(__APPLE__)
-#include "context_agl.h"
+#include "context_agl_ios.h"
 #endif
 
 #ifdef USE_EGL
@@ -129,7 +129,7 @@ std::unique_ptr<GL::Context> Context::Create(const WindowInfo& wi, const Version
 #if defined(_WIN32) && !defined(_M_ARM64)
   context = ContextWGL::Create(wi, versions_to_try, num_versions_to_try);
 #elif defined(__APPLE__)
-  context = ContextAGL::Create(wi, versions_to_try, num_versions_to_try);
+  context = ContextAGLIOS::Create(wi, versions_to_try, num_versions_to_try);
 #elif defined(ANDROID)
 #ifdef USE_EGL
   context = ContextEGLAndroid::Create(wi, versions_to_try, num_versions_to_try);

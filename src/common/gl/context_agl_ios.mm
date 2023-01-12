@@ -10,17 +10,17 @@
 #endif
 #include <dlfcn.h>
 
-Log_SetChannel(GL::ContextAGL);
+Log_SetChannel(GL::ContextAGLIOS);
 
 namespace GL {
-ContextAGL::ContextAGL(const WindowInfo& wi) : Context(wi)
+ContextAGLIOS::ContextAGLIOS(const WindowInfo& wi) : Context(wi)
 {
   m_opengl_module_handle = dlopen("/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL", RTLD_NOW);
   if (!m_opengl_module_handle)
     Log_ErrorPrint("Could not open OpenGL.framework, function lookups will probably fail");
 }
 
-ContextAGL::~ContextAGL()
+ContextAGLIOS::~ContextAGLIOS()
 {
   if ([EAGLContext currentContext] == m_context)
     [EAGLContext setCurrentContext:nil];
@@ -35,17 +35,17 @@ ContextAGL::~ContextAGL()
     dlclose(m_opengl_module_handle);
 }
 
-std::unique_ptr<Context> ContextAGL::Create(const WindowInfo& wi, const Version* versions_to_try,
+std::unique_ptr<Context> ContextAGLIOS::Create(const WindowInfo& wi, const Version* versions_to_try,
                                             size_t num_versions_to_try)
 {
-  std::unique_ptr<ContextAGL> context = std::make_unique<ContextAGL>(wi);
+  std::unique_ptr<ContextAGLIOS> context = std::make_unique<ContextAGLIOS>(wi);
   if (!context->Initialize(versions_to_try, num_versions_to_try))
     return nullptr;
 
   return context;
 }
 
-bool ContextAGL::Initialize(const Version* versions_to_try, size_t num_versions_to_try)
+bool ContextAGLIOS::Initialize(const Version* versions_to_try, size_t num_versions_to_try)
 {
   for (size_t i = 0; i < num_versions_to_try; i++)
   {
@@ -73,7 +73,7 @@ bool ContextAGL::Initialize(const Version* versions_to_try, size_t num_versions_
   return false;
 }
 
-void* ContextAGL::GetProcAddress(const char* name)
+void* ContextAGLIOS::GetProcAddress(const char* name)
 {
   void* addr = m_opengl_module_handle ? dlsym(m_opengl_module_handle, name) : nullptr;
   if (addr)
@@ -82,19 +82,19 @@ void* ContextAGL::GetProcAddress(const char* name)
   return dlsym(RTLD_NEXT, name);
 }
 
-bool ContextAGL::ChangeSurface(const WindowInfo& new_wi)
+bool ContextAGLIOS::ChangeSurface(const WindowInfo& new_wi)
 {
   m_wi = new_wi;
   BindContextToView();
   return true;
 }
 
-void ContextAGL::ResizeSurface(u32 new_surface_width /*= 0*/, u32 new_surface_height /*= 0*/)
+void ContextAGLIOS::ResizeSurface(u32 new_surface_width /*= 0*/, u32 new_surface_height /*= 0*/)
 {
   UpdateDimensions();
 }
 
-bool ContextAGL::UpdateDimensions()
+bool ContextAGLIOS::UpdateDimensions()
 {
   const CGSize window_size = [GetView() frame].size;
   const CGFloat window_scale = [[GetView() window] contentScaleFactor];
@@ -120,20 +120,20 @@ bool ContextAGL::UpdateDimensions()
   return true;
 }
 
-bool ContextAGL::SwapBuffers()
+bool ContextAGLIOS::SwapBuffers()
 {
 //  [m_context flushBuffer];
   return true;
 }
 
-bool ContextAGL::MakeCurrent() {
+bool ContextAGLIOS::MakeCurrent() {
 #if TARGET_OS_MACCATALYST
   [m_context makeCurrentContext];
 #endif
   return true;
 }
 
-bool ContextAGL::DoneCurrent() {
+bool ContextAGLIOS::DoneCurrent() {
 #if TARGET_OS_MACCATALYST
     [NSOpenGLContext clearCurrentContext];
 #else
@@ -142,7 +142,7 @@ bool ContextAGL::DoneCurrent() {
     return true;
 }
 
-bool ContextAGL::SetSwapInterval(s32 interval)
+bool ContextAGLIOS::SetSwapInterval(s32 interval)
 {
     
 //  GLint gl_interval = static_cast<GLint>(interval);
@@ -150,9 +150,9 @@ bool ContextAGL::SetSwapInterval(s32 interval)
   return true;
 }
 
-std::unique_ptr<Context> ContextAGL::CreateSharedContext(const WindowInfo& wi)
+std::unique_ptr<Context> ContextAGLIOS::CreateSharedContext(const WindowInfo& wi)
 {
-  std::unique_ptr<ContextAGL> context = std::make_unique<ContextAGL>(wi);
+  std::unique_ptr<ContextAGLIOS> context = std::make_unique<ContextAGLIOS>(wi);
 
     context->m_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]; //[[EAGLContext alloc] initWithAPI:m_pixel_format shareContext:m_context];
   if (context->m_context == nil)
@@ -168,7 +168,7 @@ std::unique_ptr<Context> ContextAGL::CreateSharedContext(const WindowInfo& wi)
   return context;
 }
 
-bool ContextAGL::CreateContext(EAGLContext* share_context, int profile, bool make_current)
+bool ContextAGLIOS::CreateContext(EAGLContext* share_context, int profile, bool make_current)
 {
   if (m_context)
   {
@@ -206,7 +206,7 @@ bool ContextAGL::CreateContext(EAGLContext* share_context, int profile, bool mak
   return true;
 }
 
-void ContextAGL::BindContextToView()
+void ContextAGLIOS::BindContextToView()
 {
   UIView* const view = GetView();
   UIWindow* const window = [view window];
