@@ -18,6 +18,10 @@ Log_SetChannel(GL::Context);
 #include "context_agl_ios.h"
 #endif
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
 #ifdef USE_EGL
 #if defined(USE_WAYLAND) || defined(USE_GBM) || defined(USE_FBDEV) || defined(USE_X11)
 #if defined(USE_WAYLAND)
@@ -129,7 +133,11 @@ std::unique_ptr<GL::Context> Context::Create(const WindowInfo& wi, const Version
 #if defined(_WIN32) && !defined(_M_ARM64)
   context = ContextWGL::Create(wi, versions_to_try, num_versions_to_try);
 #elif defined(__APPLE__)
-  context = ContextAGLIOS::Create(wi, versions_to_try, num_versions_to_try);
+    #if TARGET_OS_IOS || TARGET_OS_TV
+        context = ContextEAGL::Create(wi, versions_to_try, num_versions_to_try);
+    #else
+        context = ContextAGL::Create(wi, versions_to_try, num_versions_to_try);
+    #endif
 #elif defined(ANDROID)
 #ifdef USE_EGL
   context = ContextEGLAndroid::Create(wi, versions_to_try, num_versions_to_try);

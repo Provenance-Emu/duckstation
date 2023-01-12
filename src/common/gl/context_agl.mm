@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: 2019-2022 Connor McLaughlin <stenzek@gmail.com>
 // SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+#include <TargetConditionals.h>
+#if TARGET_OS_OSX
 
 #include "context_agl.h"
 #include "../assert.h"
@@ -220,3 +222,4 @@ void ContextAGL::BindContextToView()
     dispatch_sync(dispatch_get_main_queue(), block);
 }
 } // namespace GL
+#endif
