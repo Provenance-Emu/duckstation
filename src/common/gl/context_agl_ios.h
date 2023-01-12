@@ -1,8 +1,13 @@
 #pragma once
+
+#include <TargetConditionals.h>
+#if TARGET_OS_TV || TARGET_OS_IOS
+
 #include "context.h"
 #include <glad.h>
 
-// GLAD has to come first so that Qt doesn't pull in the system GL headers, which are incompatible with glad.
+// GLAD has to come first so that Qt doesn't pull in the system GL headers,
+// which are incompatible with glad.
 #include <glad.h>
 
 // Hack to prevent Apple's glext.h headers from getting included via qopengl.h, since we still want to use glad.
@@ -20,18 +25,9 @@
 #include <memory>
 
 #if defined(__APPLE__) && defined(__OBJC__)
-
-//#import <OpenGLES/EAGL.h>
-//#import <OpenGLES/ES3/gl.h>
-//#import <OpenGLES/ES3/glext.h>
-//
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-//#import <PVSupport/OERingBuffer.h>
-//#import <PVSupport/PVSupport-Swift.h>
 #else
-struct NSOpenGLContext;
-struct NSOpenGLPixelFormat;
 struct UIView;
 struct EAGLContext;
 typedef enum EAGLRenderingAPI
@@ -45,13 +41,14 @@ typedef enum EAGLRenderingAPI
 
 namespace GL {
 
-class ContextAGLIOS final : public Context
+class ContextEAGL final : public Context
 {
 public:
-    ContextAGLIOS(const WindowInfo& wi);
-  ~ContextAGLIOS() override;
+    ContextEAGL(const WindowInfo& wi);
+  ~ContextEAGL() override;
 
-  static std::unique_ptr<Context> Create(const WindowInfo& wi, const Version* versions_to_try,
+  static std::unique_ptr<Context> Create(const WindowInfo& wi,
+                                         const Version* versions_to_try,
                                          size_t num_versions_to_try);
 
   void* GetProcAddress(const char* name) override;
@@ -79,3 +76,4 @@ private:
 };
 
 } // namespace GL
+#endif

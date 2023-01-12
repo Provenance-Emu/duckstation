@@ -6,7 +6,7 @@
 #include "loader.h"
 
 #if defined(__APPLE__) && defined(__OBJC__)
-//#import <AppKit/AppKit.h>
+#import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 #else
 struct NSOpenGLContext;
@@ -23,7 +23,8 @@ public:
   ContextAGL(const WindowInfo& wi);
   ~ContextAGL() override;
 
-  static std::unique_ptr<Context> Create(const WindowInfo& wi, const Version* versions_to_try,
+  static std::unique_ptr<Context> Create(const WindowInfo& wi,
+                                         const Version* versions_to_try,
                                          size_t num_versions_to_try);
 
   void* GetProcAddress(const char* name) override;
