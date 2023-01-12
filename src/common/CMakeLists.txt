@@ -216,8 +216,8 @@ if(ENABLE_OPENGL)
 
   if(APPLE)
     target_sources(common PRIVATE
-      gl/context_agl.mm
-      gl/context_agl.h
+      gl/context_agl_ios.mm
+      gl/context_agl_ios.h
     )
   endif()
 endif()

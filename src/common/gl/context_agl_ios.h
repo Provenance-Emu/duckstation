@@ -6,7 +6,8 @@
 #include <glad.h>
 
 // Hack to prevent Apple's glext.h headers from getting included via qopengl.h, since we still want to use glad.
-#ifdef __APPLE__
+#if defined(__APPLE__)
+//&& defined(__OBJC__)
 #define __glext_h_
 #endif
 
@@ -18,21 +19,37 @@
 #include "core/host_display.h"
 #include <memory>
 
+#if defined(__APPLE__) && defined(__OBJC__)
+
 //#import <OpenGLES/EAGL.h>
 //#import <OpenGLES/ES3/gl.h>
 //#import <OpenGLES/ES3/glext.h>
 //
+#import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 //#import <PVSupport/OERingBuffer.h>
 //#import <PVSupport/PVSupport-Swift.h>
+#else
+struct NSOpenGLContext;
+struct NSOpenGLPixelFormat;
+struct UIView;
+struct EAGLContext;
+typedef enum EAGLRenderingAPI
+{
+    kEAGLRenderingAPIOpenGLES1 = 1,
+    kEAGLRenderingAPIOpenGLES2 = 2,
+    kEAGLRenderingAPIOpenGLES3 = 3,
+} EAGLRenderingAPI;
+#define __bridge
+#endif
 
 namespace GL {
 
-class ContextAGL final : public Context
+class ContextAGLIOS final : public Context
 {
 public:
-  ContextAGL(const WindowInfo& wi);
-  ~ContextAGL() override;
+    ContextAGLIOS(const WindowInfo& wi);
+  ~ContextAGLIOS() override;
 
   static std::unique_ptr<Context> Create(const WindowInfo& wi, const Version* versions_to_try,
                                          size_t num_versions_to_try);
@@ -47,7 +64,7 @@ public:
   std::unique_ptr<Context> CreateSharedContext(const WindowInfo& wi) override;
 
 private:
-  ALWAYS_INLINE UIView* GetView() const { return static_cast<UIView*>((__bridge UIView*)m_wi.window_handle); }
+    ALWAYS_INLINE UIView* GetView() const { return static_cast<UIView*>((__bridge UIView*)m_wi.window_handle); }
 
   bool Initialize(const Version* versions_to_try, size_t num_versions_to_try);
   bool CreateContext(EAGLContext* share_context, int profile, bool make_current);
