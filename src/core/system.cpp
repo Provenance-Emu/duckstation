@@ -1198,6 +1198,7 @@ bool System::BootSystem(SystemBootParameters parameters)
   // Check for SBI.
   if (!CheckForSBIFile(media.get()))
   {
+    Log_ErrorPrintf("CheckForSBIFile failed.");
     s_state = State::Shutdown;
     ClearRunningGame();
     Host::OnSystemDestroyed();
@@ -1231,6 +1232,7 @@ bool System::BootSystem(SystemBootParameters parameters)
   // Component setup.
   if (!Initialize(parameters.force_software_renderer))
   {
+  Log_ErrorPrintf("Initialize failed.");
     s_state = State::Shutdown;
     ClearRunningGame();
     Host::OnSystemDestroyed();

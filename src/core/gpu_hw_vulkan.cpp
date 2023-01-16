@@ -36,17 +36,19 @@ GPURenderer GPU_HW_Vulkan::GetRendererType() const
 
 bool GPU_HW_Vulkan::Initialize()
 {
-  if (!Host::AcquireHostDisplay(RenderAPI::Vulkan))
-  {
-    Log_ErrorPrintf("Host render API is incompatible");
-    return false;
-  }
+    if (!Host::AcquireHostDisplay(RenderAPI::Vulkan))
+    {
+        Log_ErrorPrintf("Host render API is incompatible");
+        return false;
+    }
 
-  Assert(g_vulkan_shader_cache);
-  SetCapabilities();
+    Assert(g_vulkan_shader_cache);
+    SetCapabilities();
 
-  if (!GPU_HW::Initialize())
-    return false;
+    if (!GPU_HW::Initialize()) {
+        Log_ErrorPrintf("Failed to `GPU_HW::Initialize()`.");
+        return false;
+    }
 
   if (!CreatePipelineLayouts())
   {
