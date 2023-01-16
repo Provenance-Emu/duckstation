@@ -23,6 +23,10 @@ Log_SetChannel(Common::MemoryArena);
 #include <unistd.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach/mach.h>
+#endif
+
 namespace Common {
 
 // Borrowed from Dolphin
@@ -120,14 +124,28 @@ static std::string GetFileMappingName()
   Log_InfoPrintf("File mapping name: %s", ret.c_str());
   return ret;
 }
-
+#define IOS
 bool MemoryArena::Create(size_t size, bool writable, bool executable)
 {
   if (IsValid())
     Destroy();
-
   const std::string file_mapping_name(GetFileMappingName());
 
+#ifdef IOS
+    vm_address_t addr = 0;
+    kern_return_t retval = vm_allocate(mach_task_self(), &addr, size, VM_FLAGS_ANYWHERE);
+    if (retval != KERN_SUCCESS)
+    {
+        Log_ErrorPrintf("Failed to map enough memory space: 0x%zx", size);
+        return false;
+    }
+
+    vm_deallocate(mach_task_self(), addr, size);
+    m_size = size;
+    m_writable = writable;
+    m_executable = executable;
+    return true;
+#endif
 #if defined(_WIN32)
   const DWORD protect = (writable ? (executable ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE) : PAGE_READONLY);
   m_file_handle = CreateFileMappingA(INVALID_HANDLE_VALUE, nullptr, protect, Truncate32(size >> 32), Truncate32(size),
@@ -257,7 +275,7 @@ void* MemoryArena::CreateViewPtr(size_t offset, size_t size, bool writable, bool
   if (!base_pointer)
     return nullptr;
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
-  const int flags = (fixed_address != nullptr) ? (MAP_SHARED | MAP_FIXED) : MAP_SHARED;
+  const int flags = ((fixed_address != nullptr) ? (MAP_SHARED | MAP_FIXED) : MAP_SHARED) | MAP_ANON | MAP_PRIVATE;
   const int prot = PROT_READ | (writable ? PROT_WRITE : 0) | (executable ? PROT_EXEC : 0);
   base_pointer = mmap(fixed_address, size, prot, flags, m_shmem_fd, static_cast<off_t>(offset));
   if (base_pointer == reinterpret_cast<void*>(-1))
