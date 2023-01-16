@@ -214,12 +214,12 @@ if(ENABLE_OPENGL)
     )
   endif()
 
-  if(APPLE)
-    target_sources(common PRIVATE
-      gl/context_agl_ios.mm
-      gl/context_agl_ios.h
-    )
-  endif()
+  # if(APPLE)
+  #   target_sources(common PRIVATE
+  #     gl/context_agl_ios.mm
+  #     gl/context_agl_ios.h
+  #   )
+  # endif()
 endif()
 
 if(ENABLE_VULKAN)
