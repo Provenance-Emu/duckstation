@@ -1,8 +1,8 @@
 add_library(frontend-common
   common_host.cpp
   common_host.h
-  fullscreen_ui.cpp
-  fullscreen_ui.h
+  # fullscreen_ui.cpp
+  # fullscreen_ui.h
   game_list.cpp
   game_list.h
   host_settings.cpp
@@ -12,8 +12,8 @@ add_library(frontend-common
   input_manager.h
   input_source.cpp
   input_source.h
-  imgui_fullscreen.cpp
-  imgui_fullscreen.h
+  # imgui_fullscreen.cpp
+  # imgui_fullscreen.h
   imgui_manager.cpp
   imgui_manager.h
   imgui_overlays.cpp
