@@ -133,7 +133,7 @@ bool LoadVulkanLibrary()
       if (pos != std::string::npos)
       {
         path.erase(pos);
-        path += "/../Frameworks/libvulkan.dylib";
+        path += "/../Frameworks/MoltenVK.framework/MoltenVK";
         vulkan_module = dlopen(path.c_str(), RTLD_NOW);
         if (!vulkan_module)
         {
